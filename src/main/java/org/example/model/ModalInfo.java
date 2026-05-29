@@ -2,6 +2,14 @@ package org.example.model;
 
 import java.util.List;
 
+/*
+Model që ruan informacion për një modal:
+
+titullin
+screenshot-in
+elementët e modalit
+butonin që e hapi.
+ */
 public class ModalInfo {
 
     private String modalTitle;

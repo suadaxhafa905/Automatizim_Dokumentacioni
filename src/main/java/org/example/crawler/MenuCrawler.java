@@ -75,7 +75,7 @@ public class MenuCrawler {
 
     private void expandAllMenus() {
 
-        for (int round = 0; round < 4; round++) {
+        for (int round = 0; round < 1; round++) {
 
             List<WebElement> toggles =
                     driver.findElements(

@@ -11,14 +11,13 @@ Analizon faqen aktuale:
 Është:
 
 Page metadata extractor
-
-
  */
 package org.example.scanner;
 
 import org.example.model.ElementInfo;
 import org.example.model.ModalInfo;
 import org.example.model.PageInfo;
+import org.example.model.PageInteractionInfo;
 import org.example.utils.ScreenshotUtil;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -28,6 +27,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
+/*
+
+Skanon faqen kryesore:
+
+merr screenshot
+skanon elementët
+thërret ModalScanner
+krijon objektin PageInfo.
+
+ */
 public class PageScanner {
 
     private final WebDriver driver;
@@ -52,7 +62,15 @@ public class PageScanner {
 
       // List<ModalInfo> modals = scanPageModals(screenshotName);
 
-      List<ModalInfo> modals = new ArrayList<>();
+      List<ModalInfo> modals = new ArrayList<>();  //suadaaa
+
+        PageInteractionScanner interactionScanner =
+                new PageInteractionScanner(driver);
+
+        List<PageInteractionInfo> interactions =
+                interactionScanner.scanPageInteractions(
+                        screenshotName
+                );
 
         return new PageInfo(
                 pageTitle,
@@ -60,7 +78,9 @@ public class PageScanner {
                 screenshotPath,
                 elements,
                 helpSectionText,
-                modals
+                modals,
+                new ArrayList<>(),
+                interactions
         );
     }
 

@@ -1,25 +1,20 @@
-
-
-
-/*
-PageInfo
-
-Model që ruan informacion për një faqe:
--titullin
--URL
--screenshot
--listën e elementëve
-
-Përfaqëson:
-Një faqe të plotë të sistemit
-
-Modeli i faqes. Mban: pageTitle, pageUrl, screenshotPath, elements.
- */
-
 package org.example.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
+/*
+Model kryesor i faqes. Ruan:
+
+titullin
+URL
+screenshot-in
+elementët
+modals
+veprimet funksionale
+tekstin ndihmës.
+
+ */
 
 public class PageInfo {
 
@@ -29,6 +24,9 @@ public class PageInfo {
     private List<ElementInfo> elements;
     private String helpSectionText;
     private List<ModalInfo> modals;
+    private List<PageActionInfo> pageActions;
+
+    private List<PageInteractionInfo> interactions;
 
     public PageInfo(
             String pageTitle,
@@ -36,7 +34,10 @@ public class PageInfo {
             String screenshotPath,
             List<ElementInfo> elements,
             String helpSectionText,
-            List<ModalInfo> modals
+            List<ModalInfo> modals,
+            List<PageActionInfo> pageActions,
+
+            List<PageInteractionInfo> interactions
     ) {
         this.pageTitle = pageTitle == null ? "" : pageTitle.trim();
         this.pageUrl = pageUrl == null ? "" : pageUrl.trim();
@@ -44,6 +45,12 @@ public class PageInfo {
         this.elements = elements == null ? new ArrayList<>() : elements;
         this.helpSectionText = helpSectionText == null ? "" : helpSectionText.trim();
         this.modals = modals == null ? new ArrayList<>() : modals;
+        this.pageActions = pageActions == null ? new ArrayList<>() : pageActions;
+
+        this.interactions =
+                interactions == null
+                        ? new ArrayList<>()
+                        : interactions;
     }
 
     public String getPageTitle() {
@@ -70,7 +77,19 @@ public class PageInfo {
         return modals;
     }
 
+    public List<PageActionInfo> getPageActions() {
+        return pageActions;
+    }
+
     public void setModals(List<ModalInfo> modals) {
-        this.modals = modals;
+        this.modals = modals == null ? new ArrayList<>() : modals;
+    }
+
+    public void setPageActions(List<PageActionInfo> pageActions) {
+        this.pageActions = pageActions == null ? new ArrayList<>() : pageActions;
+    }
+
+    public List<PageInteractionInfo> getInteractions() {
+        return interactions;
     }
 }

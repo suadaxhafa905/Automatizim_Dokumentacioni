@@ -50,7 +50,10 @@ public class ElementScanner {
                                         "self::textarea or " +
                                         "self::table or " +
                                         "self::label or " +
-                                        "self::a" +
+                                        "(self::a and (@role='button' or contains(@class,'btn'))) or " +
+                                        "@role='combobox' or " +
+                                        "contains(@class,'select2') or " +
+                                        "contains(@class,'dropdown')" +
                                         "]" +
                                         "[not(ancestor::aside)]" +
                                         "[not(ancestor::nav)]" +
@@ -58,7 +61,6 @@ public class ElementScanner {
                                         "[not(ancestor::*[contains(@class,'sidebar')])]"
                         )
                 );
-
         scanElementList(elements, result);
 
         return result;
@@ -82,7 +84,7 @@ public class ElementScanner {
                                         "self::textarea or " +
                                         "self::table or " +
                                         "self::label or " +
-                                        "self::a" +
+                                        "(self::a and (@role='button' or contains(@class,'btn')))" +
                                         "]"
                         )
                 );
@@ -106,7 +108,6 @@ public class ElementScanner {
                 }
 
                 String tagName = safeTag(element);
-                String text = clean(safeText(element));
                 String type = safeAttribute(element, "type");
                 String name = safeAttribute(element, "name");
                 String placeholder = safeAttribute(element, "placeholder");
@@ -114,6 +115,18 @@ public class ElementScanner {
                 String title = safeAttribute(element, "title");
                 String ariaLabel = safeAttribute(element, "aria-label");
                 String className = safeAttribute(element, "class");
+
+                String text = clean(safeText(element));
+
+                if ("select".equalsIgnoreCase(tagName)) {
+
+                    String label = extractLabel(element);
+
+                    if (!label.isBlank()) {
+                        text = label;
+                    }
+                }
+
 
                 if ("table".equalsIgnoreCase(tagName)) {
                     text = extractTableSummary(element);
@@ -170,16 +183,32 @@ public class ElementScanner {
         }
     }
 
-    private String extractLabel(WebElement element) {
+   private String extractLabel(WebElement element) {
+
+        String id = safeAttribute(element, "id");
 
         try {
-
-            String id = safeAttribute(element, "id");
 
             if (!id.isEmpty()) {
 
                 List<WebElement> labels =
-                        driver.findElements(By.xpath("//label[@for='" + id + "']"));
+                        driver.findElements(
+                                By.xpath("//label[@for='" + id + "']")
+                        );
+
+                for (WebElement label : labels) {
+
+                    String text = clean(label.getText());
+
+                    if (isValidLabel(text)) {
+                        return text;
+                    }
+                }
+
+                labels =
+                        driver.findElements(
+                                By.xpath("//label[contains(@for,'" + id + "')]")
+                        );
 
                 for (WebElement label : labels) {
 
@@ -197,7 +226,9 @@ public class ElementScanner {
         try {
 
             List<WebElement> nearbyLabels =
-                    element.findElements(By.xpath("./preceding::label[1]"));
+                    element.findElements(
+                            By.xpath("./parent::*//label[1]")
+                    );
 
             for (WebElement label : nearbyLabels) {
 
@@ -514,6 +545,16 @@ public class ElementScanner {
             return false;
         }
 
+        if (lower.equals("të gjitha")
+                || lower.equals("te gjitha")
+                || lower.equals("brenda afatit")
+                || lower.equals("jashtë afatit")
+                || lower.equals("jashte afatit")
+                || lower.equals("shtyrje afatit")) {
+
+            return false;
+        }
+
         if (lower.contains("999") || lower.contains("000")) {
             return false;
         }
@@ -529,11 +570,31 @@ public class ElementScanner {
             return "";
         }
     }
-
+/*
     private String safeText(WebElement element) {
 
         try {
             return element.getText().trim();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+ */
+
+    private String safeText(WebElement element) {
+
+        try {
+
+            String tag =
+                    element.getTagName().toLowerCase();
+
+            if ("select".equals(tag)) {
+                return "";
+            }
+
+            return element.getText().trim();
+
         } catch (Exception e) {
             return "";
         }

@@ -18,6 +18,7 @@ një paragraf të shkurtër informues
 
 bazuar në strukturën dhe elementët e saj.
 
+Gjeneron një përmbledhje të shkurtër për secilën faqe duke përshkruar qëllimin dhe përdorimin e saj.
  */
 
 
@@ -308,10 +309,20 @@ public class PageSummaryGenerator {
                     || type.equals("reset")) {
                 continue;
             }
-
+/*
             String value = getElementDisplayName(element);
 
             if (isValidValue(value)) {
+                fields.add(value);
+            }
+
+ */
+
+            String value = getElementDisplayName(element);
+
+            if (isValidValue(value)
+                    && !isBadFieldName(value)) {
+
                 fields.add(value);
             }
         }
@@ -472,27 +483,70 @@ public class PageSummaryGenerator {
 
     private String getElementDisplayName(ElementInfo element) {
 
+        /*
         String label = clean(element.getLabel());
 
         if (isValidValue(label)) {
             return label;
         }
 
+         */
+
+        String label = clean(element.getLabel());
+
+        if (isValidValue(label)
+                && !isBadFieldName(label)) {
+
+            return label.replace(":", "").trim();
+        }
+/*
         String text = clean(element.getText());
 
         if (isValidValue(text)) {
             return text;
         }
 
+ */
+
+        String text = clean(element.getText());
+
+        if (isValidValue(text)
+                && !isBadFieldName(text)) {
+
+            return text.replace(":", "").trim();
+        }
+/*
         String placeholder = clean(element.getPlaceholder());
 
         if (isValidValue(placeholder)) {
             return placeholder;
         }
 
+ */
+
+        String placeholder = clean(element.getPlaceholder());
+
+        if (isValidValue(placeholder)
+                && !isBadFieldName(placeholder)) {
+
+            return placeholder.replace(":", "").trim();
+        }
+
+
+/*
         String name = clean(element.getName());
 
         if (isValidValue(name)) {
+            return makeReadableName(name);
+        }
+
+ */
+
+        String name = clean(element.getName());
+
+        if (isValidValue(name)
+                && !isBadFieldName(name)) {
+
             return makeReadableName(name);
         }
 
@@ -577,8 +631,7 @@ public class PageSummaryGenerator {
             return false;
         }
 
-        if (lower.endsWith(":")
-                || lower.endsWith("...")) {
+        if (lower.endsWith("...")) {
             return false;
         }
 
@@ -661,5 +714,22 @@ public class PageSummaryGenerator {
 
     private String safe(String value) {
         return value == null ? "" : value.trim();
+    }
+
+    private boolean isBadFieldName(String value) {
+
+        if (value == null) {
+            return true;
+        }
+
+        String lower = value.toLowerCase().trim();
+
+        return lower.contains("time select")
+                || lower.contains("data aplications")
+                || lower.contains("date applications")
+                || lower.contains("search")
+                || lower.equals("select")
+                || lower.equals("dropdown")
+                || lower.equals("input");
     }
 }

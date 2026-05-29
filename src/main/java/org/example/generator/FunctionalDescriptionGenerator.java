@@ -9,6 +9,24 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/*
+Krijon:
+
+përshkrimin funksional të faqes
+çfarë mund të bëjë përdoruesi
+funksionalitetet kryesore
+
+duke analizuar:
+
+inpute
+tabela
+butona
+filtra
+statistika
+
+Gjeneron përshkrimin funksional të faqes duke analizuar elementët,
+formularët dhe funksionet kryesore të saj.
+ */
 public class FunctionalDescriptionGenerator {
 
     public String generate(PageInfo pageInfo) {
@@ -51,7 +69,8 @@ public class FunctionalDescriptionGenerator {
         if (pageType == PageType.STATISTICS_PAGE
                 || lowerPageName.contains("statistika")
                 || allText.contains("statistika")) {
-            return "Faqja \"" + pageName + "\" përdoret për analizimin vizual të të dhënave statistikore, filtrimin e rezultateve dhe monitorimin e treguesve kryesorë të sistemit. ";
+            return "Faqja \"" + pageName + "\" përdoret për analizimin vizual të të dhënave statistikore, " +
+                    "filtrimin e rezultateve dhe monitorimin e treguesve kryesorë të sistemit. ";
         }
 
         if (pageType == PageType.WORKFLOW_PAGE
@@ -248,23 +267,32 @@ public class FunctionalDescriptionGenerator {
         String tag = clean(element.getTagName()).toLowerCase();
         String type = clean(element.getType()).toLowerCase();
         String actionType = clean(element.getActionType());
+        String text = getElementDisplayName(element).toLowerCase();
 
-        if (tag.equals("select") || tag.equals("textarea")) {
+        if (tag.equals("select")
+                || tag.equals("textarea")) {
             return false;
         }
 
         if (tag.equals("input")) {
+
             return type.equals("button")
                     || type.equals("submit")
-                    || type.equals("reset");
+                    || type.equals("reset")
+                    || type.equals("checkbox")
+                    || type.equals("radio");
         }
 
         if (tag.equals("button")) {
+
+            if (looksLikeFieldOrFilter(text)) {
+                return false;
+            }
+
             return true;
         }
 
         if (tag.equals("a")) {
-            String text = getElementDisplayName(element);
 
             return isValidValue(text)
                     && !actionType.isBlank()
@@ -280,22 +308,35 @@ public class FunctionalDescriptionGenerator {
             return false;
         }
 
-        String lower = value.toLowerCase();
+        String lower = value.toLowerCase().trim();
 
         if (looksLikeFieldOrFilter(value)) {
             return false;
         }
 
-        if (lower.contains("pyetja")
-                || lower.contains("zgjidh")
-                || lower.contains("select")
-                || lower.contains("choose")
-                || lower.contains("dropdown")
+        if (lower.length() <= 2) {
+            return false;
+        }
+
+        if (lower.matches(".*\\d{4,}.*")) {
+            return false;
+        }
+
+        if (lower.contains("viti i")
                 || lower.contains("institucioni")
-                || lower.contains("cikli")
                 || lower.contains("programi")
+                || lower.contains("cikli")
                 || lower.contains("data")
-                || lower.contains("date")) {
+                || lower.contains("date")
+                || lower.contains("search...")
+                || lower.contains("placeholder")
+                || lower.contains("zgjidhni")
+                || lower.contains("select")
+                || lower.contains("dropdown")
+                || lower.contains("input")
+                || lower.contains("rows per page")
+                || lower.contains("pagination")) {
+
             return false;
         }
 
@@ -488,29 +529,56 @@ public class FunctionalDescriptionGenerator {
         String label = clean(element.getLabel());
 
         if (isValidValue(label)) {
-            return label;
+            return label.replace(":", "").trim();
         }
 
         String text = clean(element.getText());
 
-        if (isValidValue(text)) {
-            return text;
+        if (isValidValue(text)
+                && !isBadFieldName(text)
+                && !looksLikeFieldOrFilter(text)) {
+
+            return text.replace(":", "").trim();
         }
 
         String placeholder = clean(element.getPlaceholder());
 
-        if (isValidValue(placeholder)) {
-            return placeholder;
+        if (isValidValue(placeholder)
+                && !isBadFieldName(placeholder)
+                && !looksLikeFieldOrFilter(placeholder)) {
+
+            return placeholder.replace(":", "").trim();
         }
 
         String name = clean(element.getName());
 
-        if (isValidValue(name)) {
+        if (isValidValue(name)
+                && !isBadFieldName(name)
+                && !looksLikeFieldOrFilter(name)) {
+
             return makeReadableName(name);
         }
 
         return "";
     }
+
+    private boolean isBadFieldName(String value) {
+
+        if (value == null) {
+            return true;
+        }
+
+        String lower = value.toLowerCase().trim();
+
+        return lower.contains("time select")
+                || lower.contains("data aplications")
+                || lower.contains("date applications")
+                || lower.contains("search")
+                || lower.equals("select")
+                || lower.equals("dropdown")
+                || lower.equals("input");
+    }
+
 
     private boolean isValidValue(String value) {
 

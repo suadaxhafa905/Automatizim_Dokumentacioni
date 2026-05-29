@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.example.model.PageInteractionInfo;
 /*
 Gjeneron automatikisht:
 
@@ -16,6 +18,12 @@ Gjeneron automatikisht:
 -hapat e testimit
 -rezultatet e pritshme
 bazuar në elementët e faqes
+
+Merret me navigimin në menu dhe nënmenu të sistemit.
+Klikon automatikisht menutë dhe mbledh URL-të e faqeve që do të dokumentohen ose testohen.
+
+Gjeneron dokumentin e Acceptance Test. Krijon skenarë testimi,
+hapa testimi dhe rezultate të pritshme bazuar në elementët e identifikuar në faqe.
  */
 public class AcceptanceTestGenerator {
 
@@ -130,6 +138,33 @@ public class AcceptanceTestGenerator {
                     )
             );
         }
+
+
+        for (PageInteractionInfo interaction : pageInfo.getInteractions()) {
+
+            if (interaction == null) {
+                continue;
+            }
+
+            String action =
+                    clean(interaction.getDescription());
+
+            String result =
+                    clean(interaction.getResultDescription());
+
+            if (action.isBlank() || result.isBlank()) {
+                continue;
+            }
+
+            steps.add(
+                    new TestStep(
+                            step++,
+                            action,
+                            result
+                    )
+            );
+        }
+
 
         if (hasTables(pageInfo)) {
 

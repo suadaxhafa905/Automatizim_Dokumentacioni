@@ -5,6 +5,14 @@ import org.openqa.selenium.*;
 
 import java.io.File;
 
+/*
+Merret me gjenerimin e screenshot-eve:
+
+screenshot të faqes
+screenshot të modalit
+screenshot të elementëve specifikë.
+ */
+
 public class ScreenshotUtil {
 
     public static String captureScreenshot(
